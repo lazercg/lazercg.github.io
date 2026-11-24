@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kollel u'Mesivta "Birkat Shlomo" — Registration | כולל ומתיבתא "ברכת שלמה" — רישום</title>
+<style>
+  :root{--ink:#1a1a2e;--accent:#7a5c1e;--accent2:#a8822f;--bg:#f7f4ec;--card:#fff;--line:#ddd5c0;--err:#b3261e;--ok:#1f6b2e}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+  header{text-align:center;padding:18px 8px 6px}
+  header h1{font-size:24px;margin:0 0 4px;color:var(--accent)}
+  header .sub{font-size:15px;color:#555}
+  .langbar{display:flex;gap:10px;justify-content:center;margin:18px 0}
+  .langbar button{font-family:inherit;font-size:17px;padding:12px 26px;border:2px solid var(--accent);border-radius:10px;background:var(--card);color:var(--accent);cursor:pointer}
+  .langbar button.active{background:var(--accent);color:#fff}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 18px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  h2{font-size:18px;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:6px;margin:22px 0 12px}
+  h2:first-child{margin-top:0}
+  label{display:block;font-size:14px;margin:12px 0 5px}
+  label .req{color:var(--err)}
+  input{width:100%;font-family:inherit;font-size:16px;padding:11px 12px;border:1px solid #bbb;border-radius:8px;background:#fff}
+  input:focus{outline:2px solid var(--accent2);border-color:var(--accent2)}
+  .err-msg{display:none;color:var(--err);font-size:13px;margin-top:4px}
+  input.invalid{border-color:var(--err)}
+  input.invalid + .err-msg{display:block}
+  .row{display:flex;gap:12px}.row>div{flex:1}
+  @media (max-width:520px){.row{flex-direction:column;gap:0}}
+  .submit{width:100%;margin-top:24px;font-family:inherit;font-size:19px;padding:15px;border:none;border-radius:10px;background:var(--accent);color:#fff;cursor:pointer}
+  .submit:disabled{opacity:.6}
+  .note{font-size:13px;color:#666;text-align:center;margin-top:12px}
+  .panel{display:none;text-align:center;padding:26px 10px}
+  .panel .big{font-size:22px;color:var(--ok);margin-bottom:8px}
+  .panel.err .big{color:var(--err)}
+  footer{text-align:center;margin-top:22px;font-size:13px;color:#888}
+  footer a{color:var(--accent)}
+  [dir="rtl"] input{text-align:right}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="orgName">Kollel u'Mesivta "Birkat Shlomo"</h1>
+    <div class="sub" id="orgSub">Student Registration Form</div>
+  </header>
+
+  <div class="langbar">
+    <button type="button" id="btnEn" class="active">English</button>
+    <button type="button" id="btnHe">עברית</button>
+  </div>
+
+  <div class="card">
+    <form id="regForm" novalidate>
+      <div id="formBody">
+        <h2 data-i18n="secStudent">Student</h2>
+        <label><span data-i18n="fullName">Student's full name</span> <span class="req">*</span>
+          <input name="student_full_name" required data-i18n-err="errReq">
+          <span class="err-msg" data-i18n="errReq">This field is required</span></label>
+        <label><span data-i18n="nickname">Nickname</span>
+          <input name="student_nickname">
+          <span class="err-msg"></span></label>
+        <label><span data-i18n="familyName">Family name</span> <span class="req">*</span>
+          <input name="family_name" required>
+          <span class="err-msg" data-i18n="errReq">This field is required</span></label>
+        <div class="row">
+          <div><label><span data-i18n="phoneIL">Student's cell phone — in Israel</span> <span class="req">*</span>
+            <input name="student_phone_israel" type="tel" required>
+            <span class="err-msg" data-i18n="errReq">This field is required</span></label></div>
+          <div><label><span data-i18n="phoneAbroad">Student's cell phone — abroad</span>
+            <input name="student_phone_abroad" type="tel">
+            <span class="err-msg"></span></label></div>
+        </div>
+
+        <h2 data-i18n="secFather">Father</h2>
+        <label><span data-i18n="fatherName">Father's full name</span> <span class="req">*</span>
+          <input name="father_full_name" required>
+          <span class="err-msg" data-i18n="errReq">This field is required</span></label>
+        <label><span data-i18n="fatherPhone">Father's cell phone</span> <span class="req">*</span>
+          <input name="father_phone" type="tel" required>
+          <span class="err-msg" data-i18n="errReq">This field is required</span></label>
+        <label><span data-i18n="fatherEmail">Father's email</span> <span class="req">*</span>
+          <input name="father_email" type="email" required>
+          <span class="err-msg" data-i18n="errReq">This field is required</span></label>
+
+        <h2 data-i18n="secAddress">Parents' Address</h2>
+        <p class="note" style="text-align:inherit;margin:0 0 4px" data-i18n="addrNote">Please write the address in the language of your country.</p>
+        <label><span data-i18n="street">Street address</span> <span class="req">*</span>
+          <input name="address_street" required>
+          <span class="err-msg" data-i18n="errReq">This field is required</span></label>
+        <label><span data-i18n="city">City</span> <span class="req">*</span>
+          <input name="address_city" required>
+          <span class="err-msg" data-i18n="errReq">This field is required</span></label>
+        <div class="row">
+          <div><label><span data-i18n="state">State / Province</span>
+            <input name="address_state">
+            <span class="err-msg"></span></label></div>
+          <div><label><span data-i18n="zip">ZIP / Postal code</span>
+            <input name="address_zip">
+            <span class="err-msg"></span></label></div>
+        </div>
+        <label><span data-i18n="country">Country</span> <span class="req">*</span>
+          <input name="address_country" required>
+          <span class="err-msg" data-i18n="errReq">This field is required</span></label>
+
+        <button class="submit" type="submit" id="submitBtn" data-i18n="submit">Submit</button>
+        <p class="note" data-i18n="privacy">Your information goes only to the kollel office.</p>
+      </div>
+    </form>
+
+    <div class="panel" id="successPanel">
+      <div class="big" data-i18n="successTitle">Registration received</div>
+      <p data-i18n="successBody">Thank you. Your registration has been submitted to the kollel.</p>
+    </div>
+    <div class="panel err" id="errorPanel">
+      <div class="big" data-i18n="errorTitle">Something went wrong</div>
+      <p data-i18n="errorBody">Your registration was not sent. Please check your connection and try again.</p>
+      <button class="submit" type="button" id="retryBtn" data-i18n="retry" style="max-width:260px">Try again</button>
+    </div>
+  </div>
+
+  <footer><a href="admin.html" data-i18n="admin">Admin</a></footer>
+</div>
+
+<script>
+// === Site setup: the Web3Forms access key goes here (one line). ===
+const ACCESS_KEY = "YOUR-WEB3FORMS-ACCESS-KEY";
+
+const T = {
+  en:{org:'Kollel u\'Mesivta "Birkat Shlomo"',sub:'Student Registration Form',secStudent:'Student',fullName:"Student's full name",nickname:'Nickname',familyName:'Family name',phoneIL:"Student's cell phone — in Israel",phoneAbroad:"Student's cell phone — abroad",secFather:'Father',fatherName:"Father's full name",fatherPhone:"Father's cell phone",fatherEmail:"Father's email",secAddress:"Parents' Address",addrNote:'Please write the address in the language of your country.',street:'Street address',city:'City',state:'State / Province',zip:'ZIP / Postal code',country:'Country',submit:'Submit',privacy:'Your information goes only to the kollel office.',errReq:'This field is required',successTitle:'Registration received',successBody:'Thank you. Your registration has been submitted to the kollel.',errorTitle:'Something went wrong',errorBody:'Your registration was not sent. Please check your connection and try again.',retry:'Try again',admin:'Admin',sending:'Sending…'},
+  he:{org:'כולל ומתיבתא "ברכת שלמה"',sub:'טופס רישום תלמיד',secStudent:'הבחור',fullName:'שם הבחור (שלם)',nickname:'כינוי',familyName:'שם המשפחה',phoneIL:'מספר פלאפון בא"י',phoneAbroad:'מספר פלאפון בחו"ל',secFather:'האב',fatherName:'שם האב (שלם)',fatherPhone:'מספר פלאפון האב',fatherEmail:'דוא"ל (אי-מייל) האב',secAddress:'כתובת ההורים',addrNote:'את השורות הבאות נא לכתוב בלשון המדינה.',street:'כתובת',city:'עיר',state:'מדינה (מחוז)',zip:'מיקוד',country:'ארץ',submit:'שלח רישום',privacy:'הפרטים נשלחים למשרד הכולל בלבד.',errReq:'שדה חובה',successTitle:'הרישום התקבל',successBody:'תודה רבה. הרישום שלך נשלח לכולל.',errorTitle:'אירעה תקלה',errorBody:'הרישום לא נשלח. נא לבדוק את החיבור ולנסות שוב.',retry:'נסה שוב',admin:'ניהול',sending:'שולח…'}
+};
+let lang = 'en';
+function setLang(l){
+  lang = l;
+  document.documentElement.lang = l;
+  document.documentElement.dir = (l === 'he') ? 'rtl' : 'ltr';
+  document.getElementById('btnEn').classList.toggle('active', l === 'en');
+  document.getElementById('btnHe').classList.toggle('active', l === 'he');
+  document.getElementById('orgName').textContent = T[l].org;
+  document.getElementById('orgSub').textContent = T[l].sub;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (T[l][k]) el.textContent = T[l][k];
+  });
+}
+document.getElementById('btnEn').addEventListener('click', () => setLang('en'));
+document.getElementById('btnHe').addEventListener('click', () => setLang('he'));
+
+const form = document.getElementById('regForm');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  let ok = true;
+  form.querySelectorAll('input[required]').forEach(inp => {
+    const bad = !inp.value.trim() || (inp.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(inp.value));
+    inp.classList.toggle('invalid', bad);
+    if (bad) ok = false;
+  });
+  if (!ok) { form.querySelector('input.invalid').focus(); return; }
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = T[lang].sending;
+  const data = { access_key: ACCESS_KEY, subject: 'New registration — Birkat Shlomo', from_name: 'Birkat Shlomo Registration Form', language: lang };
+  new FormData(form).forEach((v, k) => { data[k] = v; });
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, body: JSON.stringify(data) });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message || 'failed');
+    document.getElementById('formBody').style.display = 'none';
+    document.getElementById('successPanel').style.display = 'block';
+  } catch (err) {
+    document.getElementById('formBody').style.display = 'none';
+    document.getElementById('errorPanel').style.display = 'block';
+  }
+});
+document.getElementById('retryBtn').addEventListener('click', () => {
+  document.getElementById('errorPanel').style.display = 'none';
+  document.getElementById('formBody').style.display = 'block';
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = false; btn.textContent = T[lang].submit;
+});
+</script>
+</body>
+</html>
