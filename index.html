@@ -17,13 +17,16 @@
   h2:first-child{margin-top:0}
   label{display:block;font-size:14px;margin:12px 0 5px}
   label .req{color:var(--err)}
-  input{width:100%;font-family:inherit;font-size:16px;padding:11px 12px;border:1px solid #bbb;border-radius:8px;background:#fff}
-  input:focus{outline:2px solid var(--accent2);border-color:var(--accent2)}
+  input,select{width:100%;font-family:inherit;font-size:16px;padding:11px 12px;border:1px solid #bbb;border-radius:8px;background:#fff}
+  input:focus,select:focus{outline:2px solid var(--accent2);border-color:var(--accent2)}
   .err-msg{display:none;color:var(--err);font-size:13px;margin-top:4px}
   input.invalid{border-color:var(--err)}
   input.invalid + .err-msg{display:block}
   .row{display:flex;gap:12px}.row>div{flex:1}
   @media (max-width:520px){.row{flex-direction:column;gap:0}}
+  .phone-row{display:flex;gap:8px}
+  .phone-row select{flex:0 0 46%}
+  .phone-row input{flex:1}
   .submit{width:100%;margin-top:24px;font-family:inherit;font-size:19px;padding:15px;border:none;border-radius:10px;background:var(--accent);color:#fff;cursor:pointer}
   .submit:disabled{opacity:.6}
   .note{font-size:13px;color:#666;margin:0 0 4px}
@@ -49,27 +52,24 @@
         <label>Student's English Name (full) <span class="req">*</span>
           <input name="student_english_name" required>
           <span class="err-msg">This field is required</span></label>
-        <label>Student's Yiddish Name <span class="req">*</span>
+        <label>Student's Yiddish Name (full) <span class="req">*</span>
           <input name="student_yiddish_name" required>
           <span class="err-msg">This field is required</span></label>
-        <label>Family Name <span class="req">*</span>
-          <input name="family_name" required>
+        <label>Cell Phone Number — in Israel <span class="req">*</span>
+          <input name="student_phone_israel" type="tel" class="phonefmt" required>
           <span class="err-msg">This field is required</span></label>
-        <div class="row">
-          <div><label>Cell Phone Number — in Israel <span class="req">*</span>
-            <input name="student_phone_israel" type="tel" required>
-            <span class="err-msg">This field is required</span></label></div>
-          <div><label>Cell Phone Number — abroad
-            <input name="student_phone_abroad" type="tel">
-            <span class="err-msg"></span></label></div>
-        </div>
+        <label>Cell Phone Number — abroad
+          <span class="phone-row">
+            <select id="abroadCode" aria-label="Country code"></select>
+            <input id="abroadNumber" type="tel" class="phonefmt">
+          </span></label>
 
         <h2>Father</h2>
         <label>Father's Name (full) <span class="req">*</span>
           <input name="father_full_name" required>
           <span class="err-msg">This field is required</span></label>
         <label>Father's Cell Phone Number <span class="req">*</span>
-          <input name="father_phone" type="tel" required>
+          <input name="father_phone" type="tel" class="phonefmt" required>
           <span class="err-msg">This field is required</span></label>
         <label>Father's Email (e-mail) <span class="req">*</span>
           <input name="father_email" type="email" required>
@@ -118,6 +118,53 @@
 // === Site setup: the Web3Forms access key (public key for this form). ===
 const ACCESS_KEY = "5a4062f3-23e0-4865-8c70-dbcdd2f4c7c6";
 
+// Country calling codes for the "abroad" phone number. Shown as "Country +code".
+const COUNTRIES = [
+["United States","+1"],["United Kingdom","+44"],["Israel","+972"],["Canada","+1"],
+["Afghanistan","+93"],["Albania","+355"],["Algeria","+213"],["American Samoa","+1684"],["Andorra","+376"],["Angola","+244"],["Anguilla","+1264"],["Antigua and Barbuda","+1268"],["Argentina","+54"],["Armenia","+374"],["Aruba","+297"],["Australia","+61"],["Austria","+43"],["Azerbaijan","+994"],
+["Bahamas","+1242"],["Bahrain","+973"],["Bangladesh","+880"],["Barbados","+1246"],["Belarus","+375"],["Belgium","+32"],["Belize","+501"],["Benin","+229"],["Bermuda","+1441"],["Bhutan","+975"],["Bolivia","+591"],["Bosnia and Herzegovina","+387"],["Botswana","+267"],["Brazil","+55"],["British Virgin Islands","+1284"],["Brunei","+673"],["Bulgaria","+359"],["Burkina Faso","+226"],["Burundi","+257"],
+["Cambodia","+855"],["Cameroon","+237"],["Cape Verde","+238"],["Cayman Islands","+1345"],["Central African Republic","+236"],["Chad","+235"],["Chile","+56"],["China","+86"],["Colombia","+57"],["Comoros","+269"],["Congo","+242"],["Congo (DRC)","+243"],["Costa Rica","+506"],["Croatia","+385"],["Cuba","+53"],["Curacao","+599"],["Cyprus","+357"],["Czech Republic","+420"],
+["Denmark","+45"],["Djibouti","+253"],["Dominica","+1767"],["Dominican Republic","+1809"],
+["Ecuador","+593"],["Egypt","+20"],["El Salvador","+503"],["Equatorial Guinea","+240"],["Eritrea","+291"],["Estonia","+372"],["Eswatini","+268"],["Ethiopia","+251"],
+["Falkland Islands","+500"],["Faroe Islands","+298"],["Fiji","+679"],["Finland","+358"],["France","+33"],["French Guiana","+594"],["French Polynesia","+689"],
+["Gabon","+241"],["Gambia","+220"],["Georgia","+995"],["Germany","+49"],["Ghana","+233"],["Gibraltar","+350"],["Greece","+30"],["Greenland","+299"],["Grenada","+1473"],["Guadeloupe","+590"],["Guam","+1671"],["Guatemala","+502"],["Guernsey","+44"],["Guinea","+224"],["Guinea-Bissau","+245"],["Guyana","+592"],
+["Haiti","+509"],["Honduras","+504"],["Hong Kong","+852"],["Hungary","+36"],
+["Iceland","+354"],["India","+91"],["Indonesia","+62"],["Iran","+98"],["Iraq","+964"],["Ireland","+353"],["Isle of Man","+44"],["Italy","+39"],["Ivory Coast","+225"],
+["Jamaica","+1876"],["Japan","+81"],["Jersey","+44"],["Jordan","+962"],
+["Kazakhstan","+7"],["Kenya","+254"],["Kiribati","+686"],["Kuwait","+965"],["Kyrgyzstan","+996"],
+["Laos","+856"],["Latvia","+371"],["Lebanon","+961"],["Lesotho","+266"],["Liberia","+231"],["Libya","+218"],["Liechtenstein","+423"],["Lithuania","+370"],["Luxembourg","+352"],
+["Macau","+853"],["Madagascar","+261"],["Malawi","+265"],["Malaysia","+60"],["Maldives","+960"],["Mali","+223"],["Malta","+356"],["Marshall Islands","+692"],["Martinique","+596"],["Mauritania","+222"],["Mauritius","+230"],["Mayotte","+262"],["Mexico","+52"],["Micronesia","+691"],["Moldova","+373"],["Monaco","+377"],["Mongolia","+976"],["Montenegro","+382"],["Montserrat","+1664"],["Morocco","+212"],["Mozambique","+258"],["Myanmar","+95"],
+["Namibia","+264"],["Nauru","+674"],["Nepal","+977"],["Netherlands","+31"],["New Caledonia","+687"],["New Zealand","+64"],["Nicaragua","+505"],["Niger","+227"],["Nigeria","+234"],["North Korea","+850"],["North Macedonia","+389"],["Norway","+47"],
+["Oman","+968"],
+["Pakistan","+92"],["Palau","+680"],["Palestine","+970"],["Panama","+507"],["Papua New Guinea","+675"],["Paraguay","+595"],["Peru","+51"],["Philippines","+63"],["Poland","+48"],["Portugal","+351"],["Puerto Rico","+1787"],
+["Qatar","+974"],
+["Romania","+40"],["Russia","+7"],["Rwanda","+250"],
+["Saint Kitts and Nevis","+1869"],["Saint Lucia","+1758"],["Saint Vincent and the Grenadines","+1784"],["Samoa","+685"],["San Marino","+378"],["Sao Tome and Principe","+239"],["Saudi Arabia","+966"],["Senegal","+221"],["Serbia","+381"],["Seychelles","+248"],["Sierra Leone","+232"],["Singapore","+65"],["Slovakia","+421"],["Slovenia","+386"],["Solomon Islands","+677"],["Somalia","+252"],["South Africa","+27"],["South Korea","+82"],["South Sudan","+211"],["Spain","+34"],["Sri Lanka","+94"],["Sudan","+249"],["Suriname","+597"],["Sweden","+46"],["Switzerland","+41"],["Syria","+963"],
+["Taiwan","+886"],["Tajikistan","+992"],["Tanzania","+255"],["Thailand","+66"],["Timor-Leste","+670"],["Togo","+228"],["Tonga","+676"],["Trinidad and Tobago","+1868"],["Tunisia","+216"],["Turkey","+90"],["Turkmenistan","+993"],["Turks and Caicos","+1649"],["Tuvalu","+688"],
+["Uganda","+256"],["Ukraine","+380"],["United Arab Emirates","+971"],["Uruguay","+598"],["US Virgin Islands","+1340"],["Uzbekistan","+998"],
+["Vanuatu","+678"],["Vatican City","+39"],["Venezuela","+58"],["Vietnam","+84"],
+["Yemen","+967"],
+["Zambia","+260"],["Zimbabwe","+263"]
+];
+const codeSel = document.getElementById('abroadCode');
+COUNTRIES.forEach(([name, code]) => {
+  const opt = document.createElement('option');
+  opt.value = code;
+  opt.textContent = name + ' ' + code;
+  if (name === 'United States') opt.selected = true;
+  codeSel.appendChild(opt);
+});
+
+// Phone formatting: a dash goes in automatically after the first 3 digits.
+function formatPhone(v){
+  const d = v.replace(/\D/g, '');
+  if (d.length <= 3) return d;
+  return d.slice(0, 3) + '-' + d.slice(3);
+}
+document.querySelectorAll('.phonefmt').forEach(inp => {
+  inp.addEventListener('input', () => { inp.value = formatPhone(inp.value); });
+});
+
 const form = document.getElementById('regForm');
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -132,6 +179,8 @@ form.addEventListener('submit', async (e) => {
   btn.disabled = true; btn.textContent = 'Sending…';
   const data = { access_key: ACCESS_KEY, subject: 'New registration — Birkat Shlomo', from_name: 'Birkat Shlomo Registration Form' };
   new FormData(form).forEach((v, k) => { data[k] = v; });
+  const abroadNum = document.getElementById('abroadNumber').value.trim();
+  data.student_phone_abroad = abroadNum ? (codeSel.value + ' ' + abroadNum) : '';
   try {
     const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, body: JSON.stringify(data) });
     const json = await res.json();
