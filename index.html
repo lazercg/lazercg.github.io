@@ -58,11 +58,12 @@
         <label>Cell Phone Number — in Israel <span class="req">*</span>
           <input name="student_phone_israel" type="tel" class="phonefmt" required>
           <span class="err-msg">This field is required</span></label>
-        <label>Cell Phone Number — abroad
+        <label>Cell Phone Number — abroad <span class="req">*</span>
           <span class="phone-row">
             <select id="abroadCode" aria-label="Country code"></select>
-            <input id="abroadNumber" type="tel" class="phonefmt">
-          </span></label>
+            <input id="abroadNumber" type="tel" class="phonefmt" required>
+          </span>
+          <span class="err-msg" id="abroadErr">This field is required</span></label>
 
         <h2>Father</h2>
         <label>Father's Name (full) <span class="req">*</span>
@@ -174,6 +175,8 @@ form.addEventListener('submit', async (e) => {
     inp.classList.toggle('invalid', bad);
     if (bad) ok = false;
   });
+  const abroadInp = document.getElementById('abroadNumber');
+  document.getElementById('abroadErr').style.display = abroadInp.classList.contains('invalid') ? 'block' : 'none';
   if (!ok) { form.querySelector('input.invalid').focus(); return; }
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = 'Sending…';
