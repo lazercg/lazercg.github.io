@@ -10,8 +10,9 @@ from this repository (`lazercg.github.io`).
   Web3Forms submissions dashboard (sign in with the email used for the access
   key; registrations can be viewed and downloaded/exported there).
 
-## Setup still needed
+## Submissions setup
 
-The form sends through [Web3Forms](https://web3forms.com). It becomes active once
-a free Web3Forms **access key** (created with the owner's email) is placed in the
-`ACCESS_KEY` constant at the top of the script in `index.html`.
+The form sends through [Web3Forms](https://web3forms.com). The site's access key
+(created 2026-11-24 with the owner's Web3Forms account) is installed in the
+`ACCESS_KEY` constant at the top of the script in `index.html`, and the form is
+live. Submissions appear in the Web3Forms dashboard for that account.
