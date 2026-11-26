@@ -21,7 +21,14 @@
   input:focus,select:focus{outline:2px solid var(--accent2);border-color:var(--accent2)}
   .err-msg{display:none;color:var(--err);font-size:13px;margin-top:4px}
   input.invalid{border-color:var(--err)}
-  input.invalid + .err-msg{display:block}
+  input.invalid ~ .err-msg{display:block}
+  .addr-label{position:relative}
+  .addr-list{position:absolute;left:0;right:0;background:#fff;border:1px solid #bbb;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.15);z-index:50;overflow:hidden}
+  .addr-item{display:block;width:100%;text-align:left;font-family:inherit;font-size:15px;padding:10px 12px;border:none;border-bottom:1px solid #eee;background:#fff;cursor:pointer}
+  .addr-item:last-child{border-bottom:none}
+  .addr-item:hover,.addr-item:active{background:#f3edda}
+  .addr-item strong{display:block;font-weight:600}
+  .addr-item span{display:block;color:#666;font-size:13px}
   .row{display:flex;gap:12px}.row>div{flex:1}
   @media (max-width:520px){.row{flex-direction:column;gap:0}}
   .phone-row{display:flex;gap:8px}
@@ -78,8 +85,9 @@
 
         <h2>Parents' Address</h2>
         <p class="note">(The following lines should be written in the language of the country.)</p>
-        <label>Parents' Address <span class="req">*</span>
-          <input name="address_street" required>
+        <label class="addr-label">Parents' Address <span class="req">*</span>
+          <input name="address_street" id="addressStreet" required autocomplete="off" placeholder="Start typing — then tap your address">
+          <span class="addr-list" id="addrList" hidden></span>
           <span class="err-msg">This field is required</span></label>
         <label>City <span class="req">*</span>
           <input name="address_city" required>
@@ -112,7 +120,7 @@
     </div>
   </div>
 
-  <footer><a href="admin.html">Admin</a></footer>
+  <footer><a href="admin.html">Admin</a><br><span style="font-size:11px">Address search © OpenStreetMap contributors</span></footer>
 </div>
 
 <script>
@@ -165,6 +173,69 @@ function formatPhone(v){
 document.querySelectorAll('.phonefmt').forEach(inp => {
   inp.addEventListener('input', () => { inp.value = formatPhone(inp.value); });
 });
+
+// Address autocomplete for the Parents' Address field (free OpenStreetMap
+// data via the Photon service — no key needed). Start typing, tap a
+// suggestion, and street / city / state / ZIP / country all fill in.
+const streetInp = document.getElementById('addressStreet');
+const addrList = document.getElementById('addrList');
+let addrTimer = null, addrSeq = 0;
+function addrParts(p){
+  const line1 = ((p.housenumber ? p.housenumber + ' ' : '') + (p.street || p.name || '')).trim();
+  let city = p.city || p.locality || p.district || '';
+  if (p.city === 'New York' && p.district) city = p.district;
+  const rest = [city, p.state, p.postcode, p.country].filter(Boolean).join(', ');
+  return { line1, rest, city };
+}
+streetInp.addEventListener('input', () => {
+  const q = streetInp.value.trim();
+  clearTimeout(addrTimer);
+  if (q.length < 3) { addrList.hidden = true; addrList.innerHTML = ''; return; }
+  addrTimer = setTimeout(async () => {
+    const seq = ++addrSeq;
+    try {
+      const res = await fetch('https://photon.komoot.io/api/?limit=6&lang=en&q=' + encodeURIComponent(q));
+      const json = await res.json();
+      if (seq !== addrSeq) return;
+      const feats = (json.features || []).filter(f => f.properties && (f.properties.street || f.properties.name));
+      if (!feats.length) { addrList.hidden = true; return; }
+      addrList.innerHTML = '';
+      feats.forEach(f => {
+        const p = f.properties, parts = addrParts(p);
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'addr-item';
+        const strong = document.createElement('strong');
+        strong.textContent = parts.line1 || parts.rest;
+        const span = document.createElement('span');
+        span.textContent = parts.rest;
+        item.appendChild(strong);
+        item.appendChild(span);
+        item.addEventListener('mousedown', (ev) => { ev.preventDefault(); pickAddress(p, parts); });
+        addrList.appendChild(item);
+      });
+      addrList.style.top = (streetInp.offsetTop + streetInp.offsetHeight + 2) + 'px';
+      addrList.hidden = false;
+    } catch (e) { addrList.hidden = true; }
+  }, 300);
+});
+function pickAddress(p, parts){
+  const set = (name, val) => {
+    const el = document.querySelector('[name="' + name + '"]');
+    if (el && val) { el.value = val; el.classList.remove('invalid'); }
+  };
+  streetInp.value = parts.line1;
+  streetInp.classList.remove('invalid');
+  set('address_city', parts.city);
+  set('address_state', p.state || '');
+  set('address_zip', p.postcode || '');
+  set('address_country', p.country || '');
+  addrList.hidden = true;
+}
+document.addEventListener('click', (e) => {
+  if (!addrList.contains(e.target) && e.target !== streetInp) addrList.hidden = true;
+});
+streetInp.addEventListener('keydown', (e) => { if (e.key === 'Escape') addrList.hidden = true; });
 
 const form = document.getElementById('regForm');
 form.addEventListener('submit', async (e) => {
