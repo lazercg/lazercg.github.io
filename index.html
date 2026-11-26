@@ -77,8 +77,11 @@
           <input name="father_full_name" required>
           <span class="err-msg">This field is required</span></label>
         <label>Father's Cell Phone Number <span class="req">*</span>
-          <input name="father_phone" type="tel" class="phonefmt" required>
-          <span class="err-msg">This field is required</span></label>
+          <span class="phone-row">
+            <select id="fatherCode" aria-label="Country code"></select>
+            <input name="father_phone" id="fatherNumber" type="tel" class="phonefmt" required>
+          </span>
+          <span class="err-msg" id="fatherErr">This field is required</span></label>
         <label>Father's Email (e-mail) <span class="req">*</span>
           <input name="father_email" type="email" required>
           <span class="err-msg">This field is required</span></label>
@@ -156,12 +159,15 @@ const COUNTRIES = [
 ["Zambia","+260"],["Zimbabwe","+263"]
 ];
 const codeSel = document.getElementById('abroadCode');
-COUNTRIES.forEach(([name, code]) => {
-  const opt = document.createElement('option');
-  opt.value = code;
-  opt.textContent = name + ' ' + code;
-  if (name === 'United States') opt.selected = true;
-  codeSel.appendChild(opt);
+const fatherCodeSel = document.getElementById('fatherCode');
+[codeSel, fatherCodeSel].forEach(sel => {
+  COUNTRIES.forEach(([name, code]) => {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = name + ' ' + code;
+    if (name === 'United States') opt.selected = true;
+    sel.appendChild(opt);
+  });
 });
 
 // Phone formatting: a dash goes in automatically after the first 3 digits.
@@ -248,6 +254,8 @@ form.addEventListener('submit', async (e) => {
   });
   const abroadInp = document.getElementById('abroadNumber');
   document.getElementById('abroadErr').style.display = abroadInp.classList.contains('invalid') ? 'block' : 'none';
+  const fatherInp = document.getElementById('fatherNumber');
+  document.getElementById('fatherErr').style.display = fatherInp.classList.contains('invalid') ? 'block' : 'none';
   if (!ok) { form.querySelector('input.invalid').focus(); return; }
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = 'Sending…';
@@ -255,6 +263,8 @@ form.addEventListener('submit', async (e) => {
   new FormData(form).forEach((v, k) => { data[k] = v; });
   const abroadNum = document.getElementById('abroadNumber').value.trim();
   data.student_phone_abroad = abroadNum ? (codeSel.value + ' ' + abroadNum) : '';
+  const fatherNum = document.getElementById('fatherNumber').value.trim();
+  data.father_phone = fatherNum ? (fatherCodeSel.value + ' ' + fatherNum) : '';
   try {
     const res = await fetch('https://api.web3forms.com/submit', { method: 'POST', headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, body: JSON.stringify(data) });
     const json = await res.json();
